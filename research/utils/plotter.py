@@ -107,6 +107,8 @@ def create_plot(
     **kwargs,
 ):
     assert len(labels) == len(labels), "The length of paths must the same as the length of labels"
+    # plt.rcParams["figure.figsize"] = (18,18)
+
     ax = plt.gca() if ax is None else ax
 
     # Setup the color map
@@ -135,6 +137,8 @@ def create_plot(
         plot_run(run_paths, label, ax=ax, color=color_map[label], **kwargs)
 
     ax.set_title(title, pad=1)
+    ax.set_ylim([200, 3300])
+
 
     # Set tick parameters
     ax.tick_params(axis="y", pad=-2, labelsize=5)
@@ -156,6 +160,7 @@ def create_plot(
     if ylim is not None:
         ax.set_ylim(*ylim)
     sns.despine(ax=ax)
+
 
 
 def plot_from_config(config_path: str) -> None:
@@ -210,7 +215,7 @@ def plot_from_config(config_path: str) -> None:
     else:
         legend_index = None
 
-    fig, axes = plt.subplots(*grid_shape, figsize=figsize)
+    fig, axes = plt.subplots(*grid_shape, figsize=(figsize))
 
     # Determine if we should include xlabels or ylabels
     use_xlabels = any(["xlabel" in plot.get("kwargs", {}) for plot in config["plots"].values()])

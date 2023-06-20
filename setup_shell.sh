@@ -1,9 +1,9 @@
 # Make sure we have the conda environment set up.
-CONDA_PATH=~/miniconda3/bin/activate
+CONDA_PATH=/opt/anaconda3/bin/activate
 ENV_NAME=ipl
-REPO_PATH=path/to/repository
+REPO_PATH=/Users/stephanehatgiskessell/Desktop/inverse-preference-learning
 USE_MUJOCO_PY=true
-WANDB_API_KEY="" # If you want to use wandb, set this to your API key.
+WANDB_API_KEY="64820e399b4da86d50ba9f5931d435ceb2cc8846" # If you want to use wandb, set this to your API key.
 
 # Setup Conda
 source $CONDA_PATH

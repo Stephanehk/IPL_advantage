@@ -5,6 +5,19 @@ from matplotlib import pyplot as plt
 
 from research.utils import plotter
 
+def insert_linebreak(my_str, lengLabel=40):
+
+    n = 0
+    new_str = ""
+    for i,char in enumerate(my_str):
+        n+=1
+        if n > lengLabel and char == " ":
+            new_str += "\n"
+            n = 0
+        else:
+            new_str += char
+    return new_str
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--output", "-o", type=str, default="plot.png", help="Path of output plot")
@@ -40,10 +53,14 @@ if __name__ == "__main__":
         # Sort the paths alphabetically by the labels
         paths, labels = zip(*sorted(zip(paths, labels), key=lambda x: x[0]))  # Alphabetically sort by filename
 
+        if args.title != None:
+            title = insert_linebreak(args.title)
+        else:
+            title = None
         plotter.create_plot(
             paths,
             labels,
-            title=args.title,
+            title=title,
             xlabel=args.xlabel,
             ylabel=args.ylabel,
             x_key=args.x,
