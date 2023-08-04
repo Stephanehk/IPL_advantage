@@ -123,6 +123,11 @@ class Trainer(object):
 
     @property
     def train_dataloader(self) -> torch.utils.data.DataLoader:
+
+        # print ("=============")
+        # print (self.model)
+        # print ("=============")
+        # assert False
         if not hasattr(self.model, "dataset"):
             self.model.setup_train_dataset()
         if self.model.dataset is None:

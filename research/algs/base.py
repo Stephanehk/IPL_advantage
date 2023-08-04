@@ -213,6 +213,7 @@ class Algorithm(ABC):
         """
         assert not hasattr(self, "dataset"), "Setup dataset called twice!"
         self.dataset = self.dataset_class(self.env.observation_space, self.env.action_space, **self.dataset_kwargs)
+        
 
     def setup_validation_dataset(self) -> None:
         if self.validation_dataset_class is not None:

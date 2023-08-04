@@ -213,6 +213,8 @@ class Advantage_Weak_IQL(OffPolicyAlgorithm):
             return all_metrics
 
         self.dataset.feedback_dataset.add(queries, labels)
+        # print (len(self.dataset.feedback_dataset))
+        # assert False
         return all_metrics
 
     def _compute_actor_loss(self, obs, action):
@@ -362,19 +364,20 @@ class Advantage_Weak_IQL(OffPolicyAlgorithm):
         assert labels.shape == logits.shape
         adv_loss = self.reward_criterion(logits, labels).mean()
 
-        # # Compute the Chi2 Loss over EVERYTHING, including replay data
-        # if self.chi2_replay_weight is not None and B_r > 0:
-        #     # This tries to balance the loss over data points.
-        #     chi2_loss_fb = self.chi2_coeff * 0.5 * (torch.square(adv1).mean() + torch.square(adv2).mean())
-        #     chi2_loss_replay = self.chi2_coeff * torch.square(aa).mean()
-        #     chi2_loss = (1 - self.chi2_replay_weight) * chi2_loss_fb + self.chi2_replay_weight * chi2_loss_replay
-        # else:
-        #     # default is 0.5
-        #     # 1 / (4 * 0.5) = 1 / 2  c = 0.5 --> reward is bounded on [-2, 2]
-        #     chi2_loss = self.chi2_coeff * (adv**2).mean()  # Otherwise compute over all
+        # Compute the Chi2 Loss over EVERYTHING, including replay data
+        if self.chi2_replay_weight is not None and B_r > 0:
+            # This tries to balance the loss over data points.
+            chi2_loss_fb = self.chi2_coeff * 0.5 * (torch.square(adv1).mean() + torch.square(adv2).mean())
+            chi2_loss_replay = self.chi2_coeff * torch.square(aa).mean()
+            chi2_loss = (1 - self.chi2_replay_weight) * chi2_loss_fb + self.chi2_replay_weight * chi2_loss_replay
+        else:
+            # default is 0.5
+            # 1 / (4 * 0.5) = 1 / 2  c = 0.5 --> reward is bounded on [-2, 2]
+            chi2_loss = self.chi2_coeff * (adv**2).mean()  # Otherwise compute over all
 
         self.optim["critic"].zero_grad(set_to_none=True)
-        adv_loss.backward()
+        (adv_loss + chi2_loss).backward()
+        # adv_loss.backward()
         self.optim["critic"].step()
 
         actor_loss = self._compute_actor_loss(obs, action)
@@ -399,7 +402,7 @@ class Advantage_Weak_IQL(OffPolicyAlgorithm):
             dict(
                 q_loss=adv_loss.item(), #TODO: this is actually the advantage loss, change var name later
                 q=adv.mean().item(), #TODO: this is actually the advantage, change var name later
-                chi2_loss=0,
+                chi2_loss=chi2_loss.item(),
                 actor_loss=actor_loss.item(),
                 reward=adv.mean().item(), #TODO: this is actually the advantage, change var name later
                 data_pts_seen=self._data_pts_seen,
